@@ -1,24 +1,17 @@
 package com.hu.wink.model.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
-import com.baomidou.mybatisplus.annotation.TableName;
-import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.*;
+
 import java.util.Date;
 import lombok.Data;
 
 /**
  * 用户
- *
-
-
+ * @TableName user
  */
-@TableName(value = "user")
+@TableName(value ="user")
 @Data
-public class User implements Serializable {
-
+public class User {
     /**
      * id
      */
@@ -26,17 +19,17 @@ public class User implements Serializable {
     private Long id;
 
     /**
-     * 用户账号
+     * 账号
      */
     private String userAccount;
 
     /**
-     * 用户密码
+     * 密码
      */
     private String userPassword;
 
     /**
-     * 开放平台id
+     * 微信开放平台id
      */
     private String unionId;
 
@@ -66,6 +59,11 @@ public class User implements Serializable {
     private String userRole;
 
     /**
+     * 编辑时间
+     */
+    private Date editTime;
+
+    /**
      * 创建时间
      */
     private Date createTime;
@@ -81,6 +79,28 @@ public class User implements Serializable {
     @TableLogic
     private Integer isDelete;
 
-    @TableField(exist = false)
-    private static final long serialVersionUID = 1L;
+    /**
+     * 会员过期时间
+     */
+    private Date vipExpireTime;
+
+    /**
+     * 会员兑换码
+     */
+    private String vipCode;
+
+    /**
+     * 会员编号
+     */
+    private Long vipNumber;
+
+    /**
+     * 分享码
+     */
+    private String shareCode;
+
+    /**
+     * 邀请用户 id
+     */
+    private Long inviteUser;
 }

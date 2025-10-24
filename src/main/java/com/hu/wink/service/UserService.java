@@ -4,18 +4,19 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.hu.wink.model.dto.user.UserQueryRequest;
 import com.hu.wink.model.entity.User;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.hu.wink.model.vo.LoginUserVO;
 import com.hu.wink.model.vo.UserVO;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+
 /**
- * 用户服务
- *
-
-
- */
+* @author hu
+* @description 针对表【user(用户)】的数据库操作Service
+* @createDate 2025-10-24 21:17:59
+*/
 public interface UserService extends IService<User> {
 
     /**

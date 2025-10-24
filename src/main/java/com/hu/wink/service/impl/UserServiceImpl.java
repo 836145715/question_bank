@@ -15,11 +15,8 @@ import com.hu.wink.model.enums.UserRoleEnum;
 import com.hu.wink.model.vo.LoginUserVO;
 import com.hu.wink.model.vo.UserVO;
 import com.hu.wink.service.UserService;
+import com.hu.wink.mapper.UserMapper;
 import com.hu.wink.utils.SqlUtils;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import org.apache.commons.lang3.StringUtils;
@@ -27,12 +24,16 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
- * 用户服务实现
- *
-
-
- */
+* @author hu
+* @description 针对表【user(用户)】的数据库操作Service实现
+* @createDate 2025-10-24 21:17:59
+*/
 @Service
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
