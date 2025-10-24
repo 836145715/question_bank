@@ -1,6 +1,6 @@
-create database if not exists mianshiya;
+create database if not exists question_db;
 
-use mianshiya;
+use question_db;
 
 
 -- 用户表
