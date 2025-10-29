@@ -42,7 +42,6 @@ spring:
 server:
   port: 8101
   servlet:
-    context-path: /api
     # cookie 30 天过期
     session:
       cookie:
