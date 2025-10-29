@@ -6,6 +6,8 @@ import com.hu.wink.exception.BusinessException;
 import com.hu.wink.model.entity.User;
 import com.hu.wink.model.enums.UserRoleEnum;
 import com.hu.wink.service.UserService;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -14,8 +16,7 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+
 
 /**
  * 权限校验 AOP

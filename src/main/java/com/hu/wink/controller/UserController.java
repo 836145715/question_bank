@@ -22,11 +22,11 @@ import com.hu.wink.model.vo.UserVO;
 import com.hu.wink.service.UserService;
 
 import java.util.List;
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
@@ -45,10 +45,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static com.hu.wink.service.impl.UserServiceImpl.SALT;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 
 /**
  * 用户接口
@@ -56,7 +54,7 @@ import io.swagger.annotations.ApiResponses;
 
 
  */
-@Api(tags = "用户管理")
+@Tag(name = "用户管理")
 @RestController
 @RequestMapping("/user")
 @Slf4j
@@ -94,12 +92,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/login")
-    @ApiOperation(value = "用户登录", notes = "用户使用账号密码登录系统")
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "登录成功", response = BaseResponse.class),
-        @ApiResponse(code = 400, message = "参数错误", response = BaseResponse.class),
-        @ApiResponse(code = 500, message = "系统错误", response = BaseResponse.class)
-    })
+    @Operation(summary = "用户登录", description = "用户使用账号密码登录系统")
     public BaseResponse<LoginUserVO> userLogin(@Valid @RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
         String userAccount = userLoginRequest.getUserAccount();
         String userPassword = userLoginRequest.getUserPassword();

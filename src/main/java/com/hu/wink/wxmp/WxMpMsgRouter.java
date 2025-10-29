@@ -3,7 +3,7 @@ package com.hu.wink.wxmp;
 import com.hu.wink.wxmp.handler.EventHandler;
 import com.hu.wink.wxmp.handler.MessageHandler;
 import com.hu.wink.wxmp.handler.SubscribeHandler;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import me.chanjar.weixin.common.api.WxConsts.EventType;
 import me.chanjar.weixin.common.api.WxConsts.XmlMsgType;
 import me.chanjar.weixin.mp.api.WxMpMessageRouter;

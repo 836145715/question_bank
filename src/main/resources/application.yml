@@ -11,6 +11,11 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+  # Spring Boot 3 文件上传配置
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
   # 验证配置
   validation:
     enabled: true
@@ -34,11 +39,6 @@ spring:
 #    uris: http://localhost:9200
 #    username: root
 #    password: 123456
-  # 文件上传
-  servlet:
-    multipart:
-      # 大小限制
-      max-file-size: 10MB
 server:
   port: 8101
   servlet:
@@ -85,14 +85,34 @@ cos:
     secretKey: xxx
     region: xxx
     bucket: xxx
-# 接口文档配置
+# 接口文档配置 (Spring Boot 3 + Knife4j 4.x)
 knife4j:
   enable: true
   openapi:
     title: "接口文档"
     version: 1.0
+    description: "Spring Boot 3 接口文档"
     group:
       default:
         api-rule: package
         api-rule-resources:
           - com.hu.wink.controller
+  setting:
+    language: zh-CN
+    enable-swagger-models: true
+    enable-document-manage: true
+    swagger-model-name: "实体类列表"
+    enable-version: false
+    enable-reload-cache-parameter: false
+    enable-after-script: true
+    enable-filter-multipart-api-method-type: POST
+    enable-filter-multipart-apis: false
+    enable-request-cache: true
+    enable-host: false
+    enable-host-text: localhost:8101
+    enable-home-custom: false
+    home-custom-path: classpath:markdown/home.md
+    enable-search: true
+    enable-footer: false
+    enable-footer-custom: true
+    footer-custom-content: Copyright © 2024

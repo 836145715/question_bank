@@ -14,11 +14,11 @@ import com.hu.wink.service.QuestionBankQuestionService;
 import com.hu.wink.service.QuestionBankService;
 import com.hu.wink.service.QuestionService;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 
 import org.springframework.validation.annotation.Validated;

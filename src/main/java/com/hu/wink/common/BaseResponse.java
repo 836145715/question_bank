@@ -2,8 +2,7 @@ package com.hu.wink.common;
 
 import java.io.Serializable;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
@@ -14,16 +13,16 @@ import lombok.Data;
 
  */
 @Data
-@ApiModel(value = "BaseResponse", description = "通用返回结果")
+@Schema(description = "通用返回结果")
 public class BaseResponse<T> implements Serializable {
 
-    @ApiModelProperty(value = "状态码", example = "0", required = true)
+    @Schema(description = "状态码", example = "0", requiredMode = Schema.RequiredMode.REQUIRED)
     private int code;
 
-    @ApiModelProperty(value = "返回数据", notes = "泛型数据对象")
+    @Schema(description = "返回数据")
     private T data;
 
-    @ApiModelProperty(value = "返回消息", example = "操作成功", required = true)
+    @Schema(description = "返回消息", example = "操作成功", requiredMode = Schema.RequiredMode.REQUIRED)
     private String message;
 
     public BaseResponse(int code, T data, String message) {

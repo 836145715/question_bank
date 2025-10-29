@@ -3,8 +3,8 @@ package com.hu.wink.common;
 import com.hu.wink.constant.CommonConstant;
 import lombok.Data;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 
 /**
  * 分页请求

@@ -7,9 +7,9 @@ import com.hu.wink.model.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.hu.wink.model.vo.LoginUserVO;
 import com.hu.wink.model.vo.UserVO;
+import jakarta.servlet.http.HttpServletRequest;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**

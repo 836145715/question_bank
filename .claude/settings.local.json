@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(mvn:*)"
+      "Bash(mvn:*)",
+      "Bash(find:*)",
+      "Bash(java:*)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []
