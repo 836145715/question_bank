@@ -23,12 +23,16 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+
 /**
  * 文件接口
  *
 
 
  */
+
 @RestController
 @RequestMapping("/file")
 @Slf4j
@@ -49,6 +53,7 @@ public class FileController {
      * @return
      */
     @PostMapping("/upload")
+    @Operation(summary = "文件上传", description = "上传文件到COS对象存储，支持多种业务类型")
     public BaseResponse<String> uploadFile(@RequestPart("file") MultipartFile multipartFile,
             UploadFileRequest uploadFileRequest, HttpServletRequest request) {
         String biz = uploadFileRequest.getBiz();

@@ -33,11 +33,15 @@ import org.springframework.validation.annotation.Validated;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+
 /**
  * 题库接口
  *
  *
  */
+
 @RestController
 @RequestMapping("/questionBank")
 @Slf4j
@@ -64,6 +68,7 @@ public class QuestionBankController {
      */
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @Operation(summary = "创建题库", description = "管理员创建新的题库")
     public BaseResponse<Long> addQuestionBank(@Valid @RequestBody QuestionBankAddRequest questionBankAddRequest, HttpServletRequest request) {
         long result = questionBankService.addQuestionBank(questionBankAddRequest, request);
         return ResultUtils.success(result);
@@ -78,6 +83,7 @@ public class QuestionBankController {
      */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @Operation(summary = "更新题库", description = "管理员更新题库信息")
     public BaseResponse<Boolean> updateQuestionBank(@Valid @RequestBody QuestionBankUpdateRequest questionBankUpdateRequest, HttpServletRequest request) {
         boolean result = questionBankService.updateQuestionBank(questionBankUpdateRequest, request);
         return ResultUtils.success(result);
@@ -92,6 +98,7 @@ public class QuestionBankController {
      */
     @PostMapping("/review")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @Operation(summary = "审核题库", description = "管理员审核题库，设置审核状态")
     public BaseResponse<Boolean> reviewQuestionBank(@Valid @RequestBody QuestionBankEditRequest questionBankEditRequest, HttpServletRequest request) {
         boolean result = questionBankService.reviewQuestionBank(questionBankEditRequest, request);
         return ResultUtils.success(result);
@@ -106,6 +113,7 @@ public class QuestionBankController {
      */
     @PostMapping("/delete")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @Operation(summary = "删除题库", description = "管理员删除题库（逻辑删除）")
     public BaseResponse<Boolean> deleteQuestionBank(@Valid @RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
         boolean result = questionBankService.deleteQuestionBank(deleteRequest.getId(), request);
         return ResultUtils.success(result);
@@ -119,6 +127,7 @@ public class QuestionBankController {
      */
     @GetMapping("/get")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @Operation(summary = "获取题库详情", description = "根据ID获取题库详情（管理员）")
     public BaseResponse<QuestionBank> getQuestionBankById(@RequestParam @Min(value = 1, message = "ID必须大于0") long id) {
         QuestionBank questionBank = questionBankService.getQuestionBankById(id);
         return ResultUtils.success(questionBank);
@@ -131,7 +140,7 @@ public class QuestionBankController {
      * @return
      */
     @PostMapping("/list/page")
-//    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @Operation(summary = "分页获取题库列表", description = "分页获取题库列表（管理员）")
     public BaseResponse<Page<QuestionBank>> listQuestionBankByPage(@Valid @RequestBody QuestionBankQueryRequest questionBankQueryRequest) {
         Page<QuestionBank> questionBankPage = questionBankService.listQuestionBankByPage(questionBankQueryRequest);
         return ResultUtils.success(questionBankPage);
@@ -146,6 +155,7 @@ public class QuestionBankController {
      * @return
      */
     @PostMapping("/list/page/vo")
+    @Operation(summary = "分页获取题库列表", description = "分页获取题库列表（用户视图）")
     public BaseResponse<Page<QuestionBankVO>> listQuestionBankVOByPage(@Valid @RequestBody QuestionBankQueryRequest questionBankQueryRequest) {
         Page<QuestionBankVO> questionBankVOPage = questionBankService.listQuestionBankVOByPage(questionBankQueryRequest);
         return ResultUtils.success(questionBankVOPage);
@@ -158,6 +168,7 @@ public class QuestionBankController {
      * @return
      */
     @GetMapping("/get/vo")
+    @Operation(summary = "获取题库详情", description = "根据ID获取题库详情（用户视图）")
     public BaseResponse<QuestionBankVO> getQuestionBankVOById(@RequestParam @Min(value = 1, message = "ID必须大于0") long id) {
         QuestionBankVO questionBankVO = questionBankService.getQuestionBankVOById(id);
         return ResultUtils.success(questionBankVO);
@@ -172,6 +183,7 @@ public class QuestionBankController {
      * @return
      */
     @GetMapping("/questions")
+    @Operation(summary = "获取题库题目列表", description = "获取指定题库下的题目列表（已审核）")
     public BaseResponse<List<QuestionVO>> getQuestionsByQuestionBankId(
             @RequestParam @Min(value = 1, message = "题库ID必须大于0") long questionBankId,
             @RequestParam(defaultValue = "1") long current,

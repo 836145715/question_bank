@@ -26,11 +26,15 @@ import org.springframework.validation.annotation.Validated;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+
 /**
  * 题库题目关联接口
  *
  *
  */
+
 @RestController
 @RequestMapping("/questionBankQuestion")
 @Slf4j
@@ -57,6 +61,7 @@ public class QuestionBankQuestionController {
      */
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @Operation(summary = "添加题目到题库", description = "将单个题目添加到指定题库")
     public BaseResponse<Boolean> addQuestionToBank(
             @RequestParam @Min(value = 1, message = "题库ID必须大于0") long questionBankId,
             @RequestParam @Min(value = 1, message = "题目ID必须大于0") long questionId,
@@ -99,6 +104,7 @@ public class QuestionBankQuestionController {
      */
     @PostMapping("/remove")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @Operation(summary = "从题库移除题目", description = "从指定题库中移除单个题目")
     public BaseResponse<Boolean> removeQuestionFromBank(
             @RequestParam @Min(value = 1, message = "题库ID必须大于0") long questionBankId,
             @RequestParam @Min(value = 1, message = "题目ID必须大于0") long questionId,
@@ -123,6 +129,7 @@ public class QuestionBankQuestionController {
      */
     @PostMapping("/batchAdd")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @Operation(summary = "批量添加题目", description = "批量将多个题目添加到指定题库")
     public BaseResponse<Boolean> batchAddQuestionsToBank(
             @RequestParam @Min(value = 1, message = "题库ID必须大于0") long questionBankId,
             @RequestBody @NotEmpty(message = "题目ID列表不能为空") List<Long> questionIds,
@@ -154,6 +161,7 @@ public class QuestionBankQuestionController {
      * @return
      */
     @GetMapping("/questionIds")
+    @Operation(summary = "获取题库题目ID列表", description = "获取指定题库关联的所有题目ID列表")
     public BaseResponse<List<Long>> getQuestionIdsByBankId(@RequestParam @Min(value = 1, message = "题库ID必须大于0") long questionBankId) {
 
         // 检查题库是否存在且已通过审核

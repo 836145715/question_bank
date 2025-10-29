@@ -4,6 +4,8 @@ import com.hu.wink.wxmp.WxMpConstant;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,12 +24,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 /**
  * 微信公众号相关接口
  *
 
 
  **/
+
 @RestController
 @RequestMapping("/")
 @Slf4j
@@ -96,6 +101,7 @@ public class WxMpController {
      * @throws WxErrorException
      */
     @GetMapping("/setMenu")
+    @Operation(summary = "设置公众号菜单", description = "为微信公众号设置自定义菜单")
     public String setMenu() throws WxErrorException {
         log.info("setMenu");
         WxMenu wxMenu = new WxMenu();
