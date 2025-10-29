@@ -3,6 +3,9 @@ package com.hu.wink.common;
 import com.hu.wink.constant.CommonConstant;
 import lombok.Data;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+
 /**
  * 分页请求
  *
@@ -15,11 +18,14 @@ public class PageRequest {
     /**
      * 当前页号
      */
+    @Min(value = 1, message = "当前页号必须大于0")
     private int current = 1;
 
     /**
      * 页面大小
      */
+    @Min(value = 1, message = "页面大小必须大于0")
+    @Max(value = 20, message = "页面大小不能超过20")
     private int pageSize = 10;
 
     /**

@@ -11,6 +11,9 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+  # 验证配置
+  validation:
+    enabled: true
   # session 配置
   session:
     # todo 取消注释开启分布式 session（须先配置 Redis）

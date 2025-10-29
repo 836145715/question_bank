@@ -16,7 +16,12 @@ import com.hu.wink.service.QuestionService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
+
+import org.springframework.validation.annotation.Validated;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +34,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/questionBankQuestion")
 @Slf4j
+@Validated
 public class QuestionBankQuestionController {
 
     @Resource
@@ -52,14 +58,10 @@ public class QuestionBankQuestionController {
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> addQuestionToBank(
-            @RequestParam long questionBankId,
-            @RequestParam long questionId,
+            @RequestParam @Min(value = 1, message = "题库ID必须大于0") long questionBankId,
+            @RequestParam @Min(value = 1, message = "题目ID必须大于0") long questionId,
             @RequestParam(required = false, defaultValue = "0") int questionOrder,
             HttpServletRequest request) {
-
-        if (questionBankId <= 0 || questionId <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
 
         // 检查题库是否存在
         QuestionBank questionBank = questionBankService.getById(questionBankId);
@@ -98,13 +100,9 @@ public class QuestionBankQuestionController {
     @PostMapping("/remove")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> removeQuestionFromBank(
-            @RequestParam long questionBankId,
-            @RequestParam long questionId,
+            @RequestParam @Min(value = 1, message = "题库ID必须大于0") long questionBankId,
+            @RequestParam @Min(value = 1, message = "题目ID必须大于0") long questionId,
             HttpServletRequest request) {
-
-        if (questionBankId <= 0 || questionId <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
 
         com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<QuestionBankQuestion> queryWrapper =
             new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<>();
@@ -126,13 +124,9 @@ public class QuestionBankQuestionController {
     @PostMapping("/batchAdd")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> batchAddQuestionsToBank(
-            @RequestParam long questionBankId,
-            @RequestBody List<Long> questionIds,
+            @RequestParam @Min(value = 1, message = "题库ID必须大于0") long questionBankId,
+            @RequestBody @NotEmpty(message = "题目ID列表不能为空") List<Long> questionIds,
             HttpServletRequest request) {
-
-        if (questionBankId <= 0 || questionIds == null || questionIds.isEmpty()) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
 
         // 检查题库是否存在
         QuestionBank questionBank = questionBankService.getById(questionBankId);
@@ -160,10 +154,7 @@ public class QuestionBankQuestionController {
      * @return
      */
     @GetMapping("/questionIds")
-    public BaseResponse<List<Long>> getQuestionIdsByBankId(@RequestParam long questionBankId) {
-        if (questionBankId <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
+    public BaseResponse<List<Long>> getQuestionIdsByBankId(@RequestParam @Min(value = 1, message = "题库ID必须大于0") long questionBankId) {
 
         // 检查题库是否存在且已通过审核
         QuestionBank questionBank = questionBankService.getById(questionBankId);

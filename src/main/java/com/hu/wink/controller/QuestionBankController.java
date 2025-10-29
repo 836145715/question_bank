@@ -24,7 +24,11 @@ import com.hu.wink.service.QuestionService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
+
+import org.springframework.validation.annotation.Validated;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +41,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/questionBank")
 @Slf4j
+@Validated
 public class QuestionBankController {
 
     @Resource
@@ -59,10 +64,7 @@ public class QuestionBankController {
      */
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Long> addQuestionBank(@RequestBody QuestionBankAddRequest questionBankAddRequest, HttpServletRequest request) {
-        if (questionBankAddRequest == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
+    public BaseResponse<Long> addQuestionBank(@Valid @RequestBody QuestionBankAddRequest questionBankAddRequest, HttpServletRequest request) {
         long result = questionBankService.addQuestionBank(questionBankAddRequest, request);
         return ResultUtils.success(result);
     }
@@ -76,10 +78,7 @@ public class QuestionBankController {
      */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Boolean> updateQuestionBank(@RequestBody QuestionBankUpdateRequest questionBankUpdateRequest, HttpServletRequest request) {
-        if (questionBankUpdateRequest == null || questionBankUpdateRequest.getId() <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
+    public BaseResponse<Boolean> updateQuestionBank(@Valid @RequestBody QuestionBankUpdateRequest questionBankUpdateRequest, HttpServletRequest request) {
         boolean result = questionBankService.updateQuestionBank(questionBankUpdateRequest, request);
         return ResultUtils.success(result);
     }
@@ -93,10 +92,7 @@ public class QuestionBankController {
      */
     @PostMapping("/review")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Boolean> reviewQuestionBank(@RequestBody QuestionBankEditRequest questionBankEditRequest, HttpServletRequest request) {
-        if (questionBankEditRequest == null || questionBankEditRequest.getId() <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
+    public BaseResponse<Boolean> reviewQuestionBank(@Valid @RequestBody QuestionBankEditRequest questionBankEditRequest, HttpServletRequest request) {
         boolean result = questionBankService.reviewQuestionBank(questionBankEditRequest, request);
         return ResultUtils.success(result);
     }
@@ -110,10 +106,7 @@ public class QuestionBankController {
      */
     @PostMapping("/delete")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Boolean> deleteQuestionBank(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
-        if (deleteRequest == null || deleteRequest.getId() <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
+    public BaseResponse<Boolean> deleteQuestionBank(@Valid @RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
         boolean result = questionBankService.deleteQuestionBank(deleteRequest.getId(), request);
         return ResultUtils.success(result);
     }
@@ -126,10 +119,7 @@ public class QuestionBankController {
      */
     @GetMapping("/get")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<QuestionBank> getQuestionBankById(long id) {
-        if (id <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
+    public BaseResponse<QuestionBank> getQuestionBankById(@RequestParam @Min(value = 1, message = "ID必须大于0") long id) {
         QuestionBank questionBank = questionBankService.getQuestionBankById(id);
         return ResultUtils.success(questionBank);
     }
@@ -142,14 +132,7 @@ public class QuestionBankController {
      */
     @PostMapping("/list/page")
 //    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Page<QuestionBank>> listQuestionBankByPage(@RequestBody QuestionBankQueryRequest questionBankQueryRequest) {
-        if (questionBankQueryRequest == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        long current = questionBankQueryRequest.getCurrent();
-        long size = questionBankQueryRequest.getPageSize();
-        // 限制爬虫
-        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+    public BaseResponse<Page<QuestionBank>> listQuestionBankByPage(@Valid @RequestBody QuestionBankQueryRequest questionBankQueryRequest) {
         Page<QuestionBank> questionBankPage = questionBankService.listQuestionBankByPage(questionBankQueryRequest);
         return ResultUtils.success(questionBankPage);
     }
@@ -163,13 +146,7 @@ public class QuestionBankController {
      * @return
      */
     @PostMapping("/list/page/vo")
-    public BaseResponse<Page<QuestionBankVO>> listQuestionBankVOByPage(@RequestBody QuestionBankQueryRequest questionBankQueryRequest) {
-        if (questionBankQueryRequest == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        long size = questionBankQueryRequest.getPageSize();
-        // 限制爬虫
-        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+    public BaseResponse<Page<QuestionBankVO>> listQuestionBankVOByPage(@Valid @RequestBody QuestionBankQueryRequest questionBankQueryRequest) {
         Page<QuestionBankVO> questionBankVOPage = questionBankService.listQuestionBankVOByPage(questionBankQueryRequest);
         return ResultUtils.success(questionBankVOPage);
     }
@@ -181,10 +158,7 @@ public class QuestionBankController {
      * @return
      */
     @GetMapping("/get/vo")
-    public BaseResponse<QuestionBankVO> getQuestionBankVOById(long id) {
-        if (id <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
+    public BaseResponse<QuestionBankVO> getQuestionBankVOById(@RequestParam @Min(value = 1, message = "ID必须大于0") long id) {
         QuestionBankVO questionBankVO = questionBankService.getQuestionBankVOById(id);
         return ResultUtils.success(questionBankVO);
     }
@@ -199,12 +173,9 @@ public class QuestionBankController {
      */
     @GetMapping("/questions")
     public BaseResponse<List<QuestionVO>> getQuestionsByQuestionBankId(
-            @RequestParam long questionBankId,
+            @RequestParam @Min(value = 1, message = "题库ID必须大于0") long questionBankId,
             @RequestParam(defaultValue = "1") long current,
             @RequestParam(defaultValue = "10") long pageSize) {
-        if (questionBankId <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
 
         // 检查题库是否存在且已通过审核
         QuestionBank questionBank = questionBankService.getById(questionBankId);
