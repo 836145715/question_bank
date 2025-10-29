@@ -1,136 +1,253 @@
 # CLAUDE.md
 
-本文件为 Claude Code (claude.ai/code) 在处理本仓库代码时提供指导。
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## 项目概述
+## Quick Start
 
-这是一个 SpringBoot 2.7.2 项目模板,提供了包含常用框架和业务功能的综合后端基础。项目遵循标准的 Maven 结构,使用 Java 8。
+This is a **Spring Boot 3.2.0** question bank management application using Java 17, MyBatis Plus, and MySQL.
 
-## 构建和开发命令
+### Essential Setup Steps
 
-### Maven 命令
+1. **Database Setup**
+   - Import `src/main/resources/init.sql` into MySQL (creates `question_db` database with seed data)
+   - Default test users (password: `12345678`):
+     - Admin: `admin`
+     - Regular users: `user1`, `user2`, `user3`, `user4`
 
-- **构建项目**: `mvn clean package`
-- **运行应用**: `mvn spring-boot:run`
-- **运行测试**: `mvn test`
-- **清理构建产物**: `mvn clean`
+2. **Configuration**
+   - Main config: `src/main/resources/application.yml`
+   - Dev config: `src/main/resources/application-dev.yml`
+   - Update database connection details in dev config if needed
 
-### 运行应用程序
+3. **Build & Run**
+   ```bash
+   # Build project
+   ./mvnw clean package -DskipTests
 
-- **主类**: `com.hu.wink.MainApplication`
-- **默认端口**: 8101
-- **上下文路径**: `/api`
-- **Swagger UI**: `http://localhost:8101/api/doc.html`
+   # Run dev profile
+   ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 
-## 架构和结构
+   # Or run JAR directly
+   java -jar target/springboot-init-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev
+   ```
 
-### 包结构
+### Development Commands
 
-- `com.hu.wink.controller` - REST API 控制器
-- `com.hu.wink.service` - 业务逻辑层
-- `com.hu.wink.service.impl` - 服务实现
-- `com.hu.wink.mapper` - MyBatis 数据访问层
-- `com.hu.wink.model.entity` - 数据库实体
-- `com.hu.wink.model.dto` - 数据传输对象
-- `com.hu.wink.model.vo` - 视图对象
-- `com.hu.wink.config` - 配置类
-- `com.hu.wink.utils` - 工具类
-- `com.hu.wink.exception` - 异常处理
-- `com.hu.wink.annotation` - 自定义注解
-- `com.hu.wink.aop` - AOP 拦截器
-- `com.hu.wink.wxmp` - 微信小程序集成
+```bash
+# Run tests
+./mvnw test
 
-### 核心技术
+# Run specific test class
+./mvnw test -Dtest=UserServiceTest
 
-- **框架**: Spring Boot 2.7.2 with Spring MVC
-- **数据库**: MySQL with MyBatis Plus (支持分页)
-- **缓存**: Redis (默认禁用,需要配置)
-- **搜索**: Elasticsearch (默认禁用,需要配置)
-- **文档**: Knife4j (Swagger)
-- **文件存储**: 腾讯云 COS
-- **微信**: 微信公众号集成
-- **工具**: Hutool, Apache Commons Lang3, EasyExcel, Lombok
+# Run with Hot Reload
+./mvnw spring-boot:run
 
-## 数据库配置
+# Clean build
+./mvnw clean
 
-### MySQL 设置
-
-1. 在 `application.yml` 中更新数据库配置:
-
-```yaml
-spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/my_db
-    username: root
-    password: 123456
+# Skip tests during build
+./mvnw clean package -DskipTests
 ```
 
-2. 按顺序执行 SQL 脚本:
-   - `sql/create_table.sql` - 创建数据库和表
+## Architecture Overview
 
-### Redis 集成 (可选)
+### Project Structure
 
-要启用 Redis 会话管理:
+```
+src/main/java/com/hu/wink/
+├── config/          # Configuration classes (MyBatis Plus, COS, WeChat, OpenAPI, etc.)
+├── controller/      # REST controllers (UserController, QuestionBankController, etc.)
+├── service/         # Business logic layer (UserService, QuestionBankService, etc.)
+├── mapper/          # MyBatis Plus data access layer
+├── model/           # DTOs, VOs, and Entities
+│   ├── dto/         # Request DTOs (UserAddRequest, UserLoginRequest, etc.)
+│   ├── entity/      # Database entities (User, QuestionBank, Question)
+│   ├── vo/          # Response View Objects (UserVO, QuestionBankVO)
+│   └── enums/       # Enumerations (UserRoleEnum, ReviewStatusEnum)
+├── aop/             # AOP interceptors (AuthInterceptor, LogInterceptor)
+├── exception/       # Exception handling (BusinessException, GlobalExceptionHandler)
+├── common/          # Shared utilities (ResultUtils, BaseResponse, ErrorCode)
+├── annotation/      # Custom annotations (@AuthCheck)
+├── constant/        # Constants (UserConstant, FileConstant)
+├── utils/           # Utility classes (SqlUtils, NetUtils, SpringContextUtils)
+└── MainApplication.java  # Spring Boot entry point
+```
 
-1. 在 `application.yml` 中配置 Redis
-2. 从 `MainApplication.java:14` 的 `@SpringBootApplication(exclude = ...)` 中移除 `RedisAutoConfiguration.class`
-3. 在会话配置中取消注释 `store-type: redis`
+### Technology Stack
 
-### Elasticsearch 集成 (可选)
+- **Core**: Spring Boot 3.2.0, Java 17, Maven
+- **Database**: MyBatis Plus 3.5.5, MySQL 8.0
+- **Cache/Session**: Redis (optional, currently disabled)
+- **Search**: Elasticsearch (optional, currently disabled)
+- **API Docs**: Knife4j (Swagger 3)
+- **Storage**: Tencent COS for file uploads
+- **Excel**: EasyExcel for import/export
+- **WeChat**: wx-java-mp for mini-program integration
+- **Template**: FreeMarker
+- **Security**: Hibernate Validator, Custom AOP authentication
 
-1. 在 `application.yml` 中配置 Elasticsearch
-2. 使用 `sql/post_es_mapping.json` 创建 ES 索引映射
-3. 在 job 类中取消注释 `@Component` 注解以进行数据同步
+### Key Patterns & Conventions
 
-## 关键配置文件
+**1. Response Format**
+- All APIs return `BaseResponse<T>` with structure: `{"code": 0, "data": ..., "message": "ok"}`
+- Success: `ResultUtils.success(data)`
+- Error: `ResultUtils.error(ErrorCode.ERROR_CODE)`
 
-- `application.yml` - 主配置文件,包含环境配置
-- `application-dev.yml` - 开发环境设置
-- `application-prod.yml` - 生产环境设置
-- `pom.xml` - Maven 依赖和构建配置
+**2. Layered Architecture**
+```
+Controller → Service → Mapper → Database
+```
+- Controllers handle HTTP, validation, and auth
+- Services contain business logic
+- Mappers use MyBatis Plus for CRUD
 
-## 业务功能
+**3. Authentication**
+- Use `@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)` for admin-only endpoints
+- `AuthInterceptor` validates permissions via AOP
+- User role enum: `user`, `admin`, `ban`
 
-### 核心实体
+**4. Data Model Conventions**
+- **Entities**: Database models (User, QuestionBank, Question)
+- **DTOs**: Request objects (UserAddRequest, UserLoginRequest)
+- **VOs**: Response objects with sensitive data filtered (UserVO, QuestionVO)
+- **Enums**: Type-safe constants (UserRoleEnum, ReviewStatusEnum)
 
-- **用户管理**: 注册、登录、基于角色的身份验证
-- **题目管理**: 题目和题库的 CRUD 操作
-- **文件上传**: 与 COS 集成的业务文件处理
+**5. Exception Handling**
+- `GlobalExceptionHandler` catches all exceptions and returns standardized errors
+- Custom `BusinessException` for business logic errors
+- Uses `@Valid` for request validation (Jakarta Bean Validation)
 
-### 认证与授权
+**6. Database Patterns**
+- Logical deletion with `@TableLogic` (isDelete field)
+- Pagination via MyBatis Plus `Page<T>`
+- Global config in `MyBatisPlusConfig` (pagination interceptor enabled)
 
-- 自定义 `@AuthCheck` 注解用于方法级安全
-- 基于角色的访问控制 (`user`, `admin`, `ban`)
-- 支持 Redis 的会话管理
+### Core Entities
 
-### 全局功能
+1. **User**
+   - Fields: id, userAccount, userPassword, userRole, unionId, mpOpenId, vipExpireTime, etc.
+   - Has VIP system and WeChat integration
 
-- 通过 `GlobalExceptionHandler` 进行全局异常处理
-- 使用 AOP 记录请求/响应日志
-- CORS 配置
-- 使用 `BaseResponse` 和 `ResultUtils` 的标准化 API 响应
+2. **QuestionBank**
+   - Contains questions with review workflow
+   - Fields: title, description, picture, reviewStatus, priority, viewNum
 
-## 开发指南
+3. **Question**
+   - Questions with tags and statistics
+   - Fields: title, content, tags (JSON), answer, viewNum, thumbNum, favourNum, needVip
 
-### 代码生成
+4. **QuestionBankQuestion**
+   - Junction table (hard delete)
+   - Fields: questionBankId, questionId, questionOrder
 
-项目在 `generate.CodeGenerator` 类中包含代码生成器,用于创建样板 CRUD 代码。
+### API Endpoints
 
-### API 文档
+**Base URL**: `http://localhost:8101`
 
-所有 REST 端点都使用 Knife4j (Swagger) 进行文档化。访问地址: `http://localhost:8101/api/doc.html`
+- **User APIs**: `/user/*`
+  - Register: `POST /user/register`
+  - Login: `POST /user/login`
+  - WeChat Login: `GET /user/login/wx_open`
+  - Admin CRUD: `/user/add`, `/user/delete`, `/user/update`, `/user/list/page`
 
-### 错误处理
+- **Question Bank APIs**: `/questionBank/*`
+  - CRUD operations with admin privileges
+  - Public queries for approved content
 
-通过 `BusinessException` 使用自定义异常,在 `ErrorCode` 中使用标准化错误代码。
+- **Question APIs**: `/question/*`
+  - CRUD operations with admin privileges
+  - Public queries for approved content
 
-### 数据库访问
+- **File Upload**: `/file/*`
+  - Uses COS (Tencent Cloud Object Storage)
 
-- MyBatis Plus 提供增强的 ORM 功能
-- 启用逻辑删除 (字段: `isDelete`)
-- 通过 `MybatisPlusInterceptor` 配置分页
+- **API Documentation**: `http://localhost:8101/doc.html` (Knife4j/Swagger UI)
 
-### 测试
+### Configuration Highlights
 
-- 单元测试应放在 `src/test/java` 中
-- 使用 JUnit5 和 Spring Boot Test 框架
+**Spring Profiles**:
+- `dev`: Default development profile
+- `prod`: Production configuration
+
+**Key Settings** (`application.yml`):
+- Server port: `8101`
+- Session timeout: 30 days
+- File upload max: 10MB
+- MyBatis Plus: SQL logging enabled, logic delete configured
+- Knife4j docs enabled at `/doc.html`
+
+**Todo Items** (search for `// todo` comments):
+- Enable Redis: Remove from `exclude` in `MainApplication` and update config
+- Enable Elasticsearch: Update `application.yml` config
+- Update WeChat/COS credentials in production
+
+### Common Development Tasks
+
+**Adding a New Entity**:
+1. Create entity in `model/entity/`
+2. Create mapper interface in `mapper/`
+3. Create service interface in `service/`
+4. Implement service in `service/impl/`
+5. Create controller in `controller/`
+6. Add XML mapper file in `src/main/resources/mapper/`
+7. Run database migration for new table
+
+**Adding Validation**:
+- Add validation annotations to DTOs (`@Valid`, `@Min`, etc.)
+- `GlobalExceptionHandler` already handles validation errors
+
+**Modifying Auth**:
+- Check `AuthInterceptor` for permission logic
+- Update `UserRoleEnum` for new roles
+- Use `@AuthCheck` annotation on endpoints
+
+### Testing
+
+Test files in `src/test/java/`:
+- `MainApplicationTests`: Spring context test
+- `UserServiceTest`: User service unit tests
+- `EasyExcelTest`: Excel utility tests
+- `CosManagerTest`: COS integration tests
+
+Run specific tests:
+```bash
+./mvnw test -Dtest=UserServiceTest
+./mvnw test -Dtest=*Test
+```
+
+### Dependencies (from pom.xml)
+
+Key libraries with versions:
+- Spring Boot: 3.2.0
+- MyBatis Plus: 3.5.5
+- MySQL Connector: 8.x
+- Knife4j: 4.4.0
+- EasyExcel: 3.3.4
+- Hutool: 5.8.26
+- wx-java-mp: 4.6.0
+
+See `pom.xml:19-124` for complete dependency list.
+
+### Important Notes
+
+1. **WeChat Integration**: Currently uses Memory storage type, needs proper Redis for production
+2. **Redis**: Disabled by default, need to configure and enable in `MainApplication`
+3. **Elasticsearch**: Optional dependency, needs configuration if used
+4. **SQL Logging**: Enabled in dev profile (see `application.yml:52`)
+5. **Port**: Default is 8101
+6. **Session**: Cookie-based, 30-day expiry
+7. **Password Encryption**: MD5 with SALT (see `UserServiceImpl`)
+8. **Review System**: Questions/Banks have review workflow (0-pending, 1-approved, 2-rejected)
+
+### Files of Interest
+
+- `src/main/resources/init.sql`: Database schema and seed data
+- `src/main/java/com/hu/wink/MainApplication.java`: Entry point, note Redis exclusion
+- `src/main/java/com/hu/wink/config/MyBatisPlusConfig.java`: DB pagination setup
+- `src/main/java/com/hu/wink/config/OpenApiConfig.java`: Knife4j/OpenAPI configuration
+- `src/main/java/com/hu/wink/exception/GlobalExceptionHandler.java`: Centralized error handling
+- `src/main/java/com/hu/wink/aop/AuthInterceptor.java`: Permission validation logic
+- `src/main/java/com/hu/wink/controller/UserController.java`: Complete example of REST patterns
+- `src/main/java/com/hu/wink/service/UserService.java`: Service interface patterns
+- `src/main/java/com/hu/wink/common/ResultUtils.java`: Standardized API responses
