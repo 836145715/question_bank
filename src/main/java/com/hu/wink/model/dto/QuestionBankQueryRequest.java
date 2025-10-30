@@ -45,7 +45,6 @@ public class QuestionBankQueryRequest extends PageRequest implements Serializabl
     /**
      * 状态：0-待审核, 1-通过, 2-拒绝
      */
-    @Pattern(regexp = "^[012]?$", message = "审核状态只能是0、1、2或空")
     private Integer reviewStatus;
 
     /**

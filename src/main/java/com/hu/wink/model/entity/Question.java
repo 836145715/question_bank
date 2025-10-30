@@ -5,6 +5,10 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
+import java.util.List;
+
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 /**
@@ -33,7 +37,8 @@ public class Question {
     /**
      * 标签列表（json 数组）
      */
-    private String tags;
+    @TableField(value = "tags", typeHandler = JacksonTypeHandler.class)
+    private List<String> tags;
 
     /**
      * 推荐答案

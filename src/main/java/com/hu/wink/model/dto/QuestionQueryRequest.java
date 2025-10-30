@@ -51,7 +51,6 @@ public class QuestionQueryRequest extends PageRequest implements Serializable {
     /**
      * 状态：0-待审核, 1-通过, 2-拒绝
      */
-    @Pattern(regexp = "^[012]?$", message = "审核状态只能是0、1、2或空")
     private Integer reviewStatus;
 
     /**
@@ -75,7 +74,6 @@ public class QuestionQueryRequest extends PageRequest implements Serializable {
     /**
      * 仅会员可见（1 表示仅会员可见）
      */
-    @Pattern(regexp = "^[01]?$", message = "needVip只能是0、1或空")
     private Integer needVip;
 
     /**

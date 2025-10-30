@@ -41,7 +41,6 @@ import io.swagger.v3.oas.annotations.Operation;
 @RequestMapping("/question")
 @Slf4j
 @Validated
-@Tag(name = "题目管理", description = "题目的增删改查和审核相关接口")
 public class QuestionController {
 
     @Resource

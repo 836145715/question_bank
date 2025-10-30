@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 题目更新请求
@@ -42,7 +43,7 @@ public class QuestionUpdateRequest implements Serializable {
      * 标签列表（json 数组）
      */
     @Size(max = 1000, message = "标签列表长度不能超过1000个字符")
-    private String tags;
+    private List<String> tags;
 
     /**
      * 推荐答案

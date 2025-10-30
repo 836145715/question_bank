@@ -143,7 +143,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         if (StringUtils.isNotBlank(questionUpdateRequest.getContent())) {
             updateQuestion.setContent(questionUpdateRequest.getContent());
         }
-        if (StringUtils.isNotBlank(questionUpdateRequest.getTags())) {
+        if (questionUpdateRequest.getTags() != null) {
             updateQuestion.setTags(questionUpdateRequest.getTags());
         }
         if (StringUtils.isNotBlank(questionUpdateRequest.getAnswer())) {
