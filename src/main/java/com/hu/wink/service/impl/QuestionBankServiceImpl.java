@@ -186,11 +186,22 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, Que
         long current = questionBankQueryRequest.getCurrent();
         long size = questionBankQueryRequest.getPageSize();
 
-        // 只查询通过审核的题库
+        // 只查询通过审核的题库 - 创建新对象避免修改原对象
         QuestionBankQueryRequest userQueryRequest = new QuestionBankQueryRequest();
         userQueryRequest.setCurrent((int) current);
         userQueryRequest.setPageSize((int) size);
         userQueryRequest.setReviewStatus(1); // 只显示通过审核的
+
+        // 复制其他查询条件
+        userQueryRequest.setTitle(questionBankQueryRequest.getTitle());
+        userQueryRequest.setDescription(questionBankQueryRequest.getDescription());
+        userQueryRequest.setUserId(questionBankQueryRequest.getUserId());
+        userQueryRequest.setReviewerId(questionBankQueryRequest.getReviewerId());
+        userQueryRequest.setPriority(questionBankQueryRequest.getPriority());
+        userQueryRequest.setMinViewNum(questionBankQueryRequest.getMinViewNum());
+        userQueryRequest.setMaxViewNum(questionBankQueryRequest.getMaxViewNum());
+        userQueryRequest.setSortField(questionBankQueryRequest.getSortField());
+        userQueryRequest.setSortOrder(questionBankQueryRequest.getSortOrder());
 
         QueryWrapper<QuestionBank> queryWrapper = getQueryWrapper(userQueryRequest);
         Page<QuestionBank> questionBankPage = this.page(new Page<>(current, size), queryWrapper);

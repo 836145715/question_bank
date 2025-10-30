@@ -4,7 +4,9 @@
       "Bash(mvn:*)",
       "Bash(find:*)",
       "Bash(java:*)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(./mvnw clean compile -DskipTests)",
+      "Bash(dir pom.xml)"
     ],
     "deny": [],
     "ask": []
