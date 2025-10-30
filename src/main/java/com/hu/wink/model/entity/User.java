@@ -9,7 +9,7 @@ import lombok.Data;
  * 用户
  * @TableName user
  */
-@TableName(value ="user")
+@TableName(value ="user",autoResultMap = true)
 @Data
 public class User {
     /**

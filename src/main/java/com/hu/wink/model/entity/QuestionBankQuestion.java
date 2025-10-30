@@ -11,7 +11,7 @@ import lombok.Data;
  * 题库题目
  * @TableName question_bank_question
  */
-@TableName(value ="question_bank_question")
+@TableName(value ="question_bank_question",autoResultMap = true)
 @Data
 public class QuestionBankQuestion {
     /**

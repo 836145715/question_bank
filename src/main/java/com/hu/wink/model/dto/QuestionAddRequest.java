@@ -6,6 +6,7 @@ import lombok.Data;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 题目添加请求
@@ -32,11 +33,11 @@ public class QuestionAddRequest implements Serializable {
     private String content;
 
     /**
-     * 标签列表（json 数组）
+     * 标签列表
      */
     @Schema(description = "标签列表", example = "[\"Java\", \"基础\", \"选择题\"]", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    @Size(max = 500, message = "标签列表长度不能超过500个字符")
-    private String tags;
+    @Size(max = 10, message = "标签数量不能超过10个")
+    private List<String> tags;
 
     /**
      * 推荐答案
