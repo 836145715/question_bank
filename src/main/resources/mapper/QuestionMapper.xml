@@ -8,8 +8,14 @@
         id,title,content,tags,answer,userId,reviewStatus,reviewMessage,reviewerId,reviewTime,viewNum,thumbNum,favourNum,priority,source,needVip,createTime,updateTime,editTime,isDelete
     </sql>
 
+    <!-- 结果映射，指定tags字段的TypeHandler -->
+    <resultMap id="QuestionResultMap" type="com.hu.wink.model.entity.Question" autoMapping="true">
+        <id property="id" column="id"/>
+        <result property="tags" column="tags" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+    </resultMap>
+
     <!-- 根据题库ID分页查询题目 -->
-    <select id="listQuestionByPageWithBank" resultType="com.hu.wink.model.entity.Question">
+    <select id="listQuestionByPageWithBank" resultMap="QuestionResultMap">
         SELECT q.id, q.title, q.content, q.tags, q.answer, q.userId, q.reviewStatus, q.reviewMessage,
                q.reviewerId, q.reviewTime, q.viewNum, q.thumbNum, q.favourNum, q.priority, q.source,
                q.needVip, q.createTime, q.updateTime, q.editTime, q.isDelete
