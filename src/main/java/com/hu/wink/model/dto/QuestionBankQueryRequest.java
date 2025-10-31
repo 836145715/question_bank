@@ -1,6 +1,7 @@
 package com.hu.wink.model.dto;
 
 import com.hu.wink.common.PageRequest;
+import jakarta.validation.constraints.Max;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -17,6 +18,13 @@ import java.io.Serializable;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class QuestionBankQueryRequest extends PageRequest implements Serializable {
+
+    /**
+     * 页面大小
+     */
+    @Min(value = 1, message = "页面大小必须大于0")
+    @Max(value = 200, message = "页面大小不能超过200")
+    private int pageSize = 10;
 
     /**
      * id

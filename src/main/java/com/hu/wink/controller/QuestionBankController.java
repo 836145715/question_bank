@@ -192,7 +192,7 @@ public class QuestionBankController {
         // 检查题库是否存在且已通过审核
         QuestionBank questionBank = questionBankService.getById(questionBankId);
         ThrowUtils.throwIf(questionBank == null, ErrorCode.NOT_FOUND_ERROR);
-        ThrowUtils.throwIf(questionBank.getReviewStatus() != 1, ErrorCode.FORBIDDEN_ERROR, "题库未通过审核");
+//        ThrowUtils.throwIf(questionBank.getReviewStatus() != 1, ErrorCode.FORBIDDEN_ERROR, "题库未通过审核");
 
         // 查询题库题目关联
         com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<QuestionBankQuestion> queryWrapper =

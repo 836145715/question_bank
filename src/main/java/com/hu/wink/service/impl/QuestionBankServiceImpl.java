@@ -166,9 +166,9 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, Que
         }
 
         // 只有通过审核的题库才能被普通用户查看
-        if (questionBank.getReviewStatus() != 1) {
-            throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "题库未通过审核");
-        }
+//        if (questionBank.getReviewStatus() != 1) {
+//            throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "题库未通过审核");
+//        }
 
         return getQuestionBankVO(questionBank);
     }
@@ -190,7 +190,7 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, Que
         QuestionBankQueryRequest userQueryRequest = new QuestionBankQueryRequest();
         userQueryRequest.setCurrent((int) current);
         userQueryRequest.setPageSize((int) size);
-        userQueryRequest.setReviewStatus(1); // 只显示通过审核的
+//        userQueryRequest.setReviewStatus(1); // 只显示通过审核的
 
         QueryWrapper<QuestionBank> queryWrapper = getQueryWrapper(userQueryRequest);
         Page<QuestionBank> questionBankPage = this.page(new Page<>(current, size), queryWrapper);

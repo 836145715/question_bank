@@ -181,8 +181,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         QuestionQueryRequest userQueryRequest = new QuestionQueryRequest();
         userQueryRequest.setCurrent((int) current);
         userQueryRequest.setPageSize((int) size);
-        userQueryRequest.setReviewStatus(1); // 只查询已通过的
-        userQueryRequest.setReviewStatus(1); // 只查询已通过的
+//        userQueryRequest.setReviewStatus(1); // 只查询已通过的
         userQueryRequest.setTitle(questionQueryRequest.getTitle());
         userQueryRequest.setTags(questionQueryRequest.getTags());
         userQueryRequest.setSource(questionQueryRequest.getSource());
