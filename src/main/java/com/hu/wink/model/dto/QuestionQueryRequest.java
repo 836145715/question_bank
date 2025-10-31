@@ -1,12 +1,13 @@
 package com.hu.wink.model.dto;
 
+import java.io.Serializable;
+
 import com.hu.wink.common.PageRequest;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
-import java.io.Serializable;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * 题目查询请求
@@ -110,6 +111,12 @@ public class QuestionQueryRequest extends PageRequest implements Serializable {
      */
     @Min(value = 0, message = "最大收藏数不能小于0")
     private Integer maxFavourNum;
+
+    /**
+     * 题库 id
+     */
+    @Min(value = 1, message = "题库ID必须大于0")
+    private Long questionBankId;
 
     private static final long serialVersionUID = 1L;
 }

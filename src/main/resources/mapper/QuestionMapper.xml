@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hu.wink.mapper.QuestionMapper">
+
+    <sql id="Base_Column_List">
+        id,title,content,tags,answer,userId,reviewStatus,reviewMessage,reviewerId,reviewTime,viewNum,thumbNum,favourNum,priority,source,needVip,createTime,updateTime,editTime,isDelete
+    </sql>
+
+    <!-- 根据题库ID分页查询题目 -->
+    <select id="listQuestionByPageWithBank" resultType="com.hu.wink.model.entity.Question">
+        SELECT q.id, q.title, q.content, q.tags, q.answer, q.userId, q.reviewStatus, q.reviewMessage,
+               q.reviewerId, q.reviewTime, q.viewNum, q.thumbNum, q.favourNum, q.priority, q.source,
+               q.needVip, q.createTime, q.updateTime, q.editTime, q.isDelete
+        FROM question q
+        INNER JOIN question_bank_question qbq ON q.id = qbq.questionId
+        WHERE q.isDelete = 0
+        <if test="questionQueryRequest.questionBankId != null and questionQueryRequest.questionBankId > 0">
+            AND qbq.questionBankId = #{questionQueryRequest.questionBankId}
+        </if>
+        <if test="questionQueryRequest.id != null and questionQueryRequest.id > 0">
+            AND q.id = #{questionQueryRequest.id}
+        </if>
+        <if test="questionQueryRequest.title != null and questionQueryRequest.title != ''">
+            AND q.title LIKE CONCAT('%', #{questionQueryRequest.title}, '%')
+        </if>
+        <if test="questionQueryRequest.content != null and questionQueryRequest.content != ''">
+            AND q.content LIKE CONCAT('%', #{questionQueryRequest.content}, '%')
+        </if>
+        <if test="questionQueryRequest.tags != null and questionQueryRequest.tags != ''">
+            AND q.tags LIKE CONCAT('%', #{questionQueryRequest.tags}, '%')
+        </if>
+        <if test="questionQueryRequest.userId != null and questionQueryRequest.userId > 0">
+            AND q.userId = #{questionQueryRequest.userId}
+        </if>
+        <if test="questionQueryRequest.reviewStatus != null">
+            AND q.reviewStatus = #{questionQueryRequest.reviewStatus}
+        </if>
+        <if test="questionQueryRequest.reviewerId != null and questionQueryRequest.reviewerId > 0">
+            AND q.reviewerId = #{questionQueryRequest.reviewerId}
+        </if>
+        <if test="questionQueryRequest.priority != null">
+            AND q.priority = #{questionQueryRequest.priority}
+        </if>
+        <if test="questionQueryRequest.source != null and questionQueryRequest.source != ''">
+            AND q.source = #{questionQueryRequest.source}
+        </if>
+        <if test="questionQueryRequest.needVip != null">
+            AND q.needVip = #{questionQueryRequest.needVip}
+        </if>
+        <if test="questionQueryRequest.minViewNum != null and questionQueryRequest.minViewNum >= 0">
+            AND q.viewNum >= #{questionQueryRequest.minViewNum}
+        </if>
+        <if test="questionQueryRequest.maxViewNum != null and questionQueryRequest.maxViewNum >= 0">
+            AND q.viewNum &lt;= #{questionQueryRequest.maxViewNum}
+        </if>
+        <if test="questionQueryRequest.minThumbNum != null and questionQueryRequest.minThumbNum >= 0">
+            AND q.thumbNum >= #{questionQueryRequest.minThumbNum}
+        </if>
+        <if test="questionQueryRequest.maxThumbNum != null and questionQueryRequest.maxThumbNum >= 0">
+            AND q.thumbNum &lt;= #{questionQueryRequest.maxThumbNum}
+        </if>
+        <if test="questionQueryRequest.minFavourNum != null and questionQueryRequest.minFavourNum >= 0">
+            AND q.favourNum >= #{questionQueryRequest.minFavourNum}
+        </if>
+        <if test="questionQueryRequest.maxFavourNum != null and questionQueryRequest.maxFavourNum >= 0">
+            AND q.favourNum &lt;= #{questionQueryRequest.maxFavourNum}
+        </if>
+        <!-- 排序逻辑 -->
+        <choose>
+            <when test="questionQueryRequest.sortField != null and questionQueryRequest.sortField != ''">
+                <choose>
+                    <when test="questionQueryRequest.sortOrder != null and questionQueryRequest.sortOrder == 'ascend'">
+                        ORDER BY q.${questionQueryRequest.sortField} ASC
+                    </when>
+                    <otherwise>
+                        ORDER BY q.${questionQueryRequest.sortField} DESC
+                    </otherwise>
+                </choose>
+            </when>
+            <otherwise>
+                ORDER BY q.createTime DESC
+            </otherwise>
+        </choose>
+    </select>
+
+</mapper>

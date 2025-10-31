@@ -177,34 +177,49 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
     public Page<QuestionVO> listQuestionVOByPage(QuestionQueryRequest questionQueryRequest) {
         long current = questionQueryRequest.getCurrent();
         long size = questionQueryRequest.getPageSize();
-        // 只查询通过审核的题目
-        QuestionQueryRequest userQueryRequest = new QuestionQueryRequest();
-        userQueryRequest.setCurrent((int) current);
-        userQueryRequest.setPageSize((int) size);
-//        userQueryRequest.setReviewStatus(1); // 只查询已通过的
-        userQueryRequest.setTitle(questionQueryRequest.getTitle());
-        userQueryRequest.setTags(questionQueryRequest.getTags());
-        userQueryRequest.setSource(questionQueryRequest.getSource());
-        userQueryRequest.setNeedVip(questionQueryRequest.getNeedVip());
-        userQueryRequest.setMinViewNum(questionQueryRequest.getMinViewNum());
-        userQueryRequest.setMaxViewNum(questionQueryRequest.getMaxViewNum());
-        userQueryRequest.setMinThumbNum(questionQueryRequest.getMinThumbNum());
-        userQueryRequest.setMaxThumbNum(questionQueryRequest.getMaxThumbNum());
-        userQueryRequest.setMinFavourNum(questionQueryRequest.getMinFavourNum());
-        userQueryRequest.setMaxFavourNum(questionQueryRequest.getMaxFavourNum());
-        userQueryRequest.setSortField("viewNum");
-        userQueryRequest.setSortOrder("desc");
 
-        QueryWrapper<Question> queryWrapper = getQueryWrapper(userQueryRequest);
-        Page<Question> questionPage = this.page(new Page<>(current, size), queryWrapper);
-        // 转换为VO
-        Page<QuestionVO> questionVOPage = new Page<>();
-        questionVOPage.setCurrent(questionPage.getCurrent());
-        questionVOPage.setSize(questionPage.getSize());
-        questionVOPage.setTotal(questionPage.getTotal());
-        List<QuestionVO> questionVOList = getQuestionVO(questionPage.getRecords());
-        questionVOPage.setRecords(questionVOList);
-        return questionVOPage;
+        // 如果有题库ID过滤条件，使用联查方法
+        if (questionQueryRequest.getQuestionBankId() != null && questionQueryRequest.getQuestionBankId() > 0) {
+            // 使用联查方法查询指定题库的题目
+            Page<Question> questionPage = baseMapper.listQuestionByPageWithBank(new Page<>(current, size), questionQueryRequest);
+            // 转换为VO
+            Page<QuestionVO> questionVOPage = new Page<>();
+            questionVOPage.setCurrent(questionPage.getCurrent());
+            questionVOPage.setSize(questionPage.getSize());
+            questionVOPage.setTotal(questionPage.getTotal());
+            List<QuestionVO> questionVOList = getQuestionVO(questionPage.getRecords());
+            questionVOPage.setRecords(questionVOList);
+            return questionVOPage;
+        } else {
+            // 原有的查询逻辑（不涉及题库过滤）
+            QuestionQueryRequest userQueryRequest = new QuestionQueryRequest();
+            userQueryRequest.setCurrent((int) current);
+            userQueryRequest.setPageSize((int) size);
+//            userQueryRequest.setReviewStatus(1); // 只查询已通过的
+            userQueryRequest.setTitle(questionQueryRequest.getTitle());
+            userQueryRequest.setTags(questionQueryRequest.getTags());
+            userQueryRequest.setSource(questionQueryRequest.getSource());
+            userQueryRequest.setNeedVip(questionQueryRequest.getNeedVip());
+            userQueryRequest.setMinViewNum(questionQueryRequest.getMinViewNum());
+            userQueryRequest.setMaxViewNum(questionQueryRequest.getMaxViewNum());
+            userQueryRequest.setMinThumbNum(questionQueryRequest.getMinThumbNum());
+            userQueryRequest.setMaxThumbNum(questionQueryRequest.getMaxThumbNum());
+            userQueryRequest.setMinFavourNum(questionQueryRequest.getMinFavourNum());
+            userQueryRequest.setMaxFavourNum(questionQueryRequest.getMaxFavourNum());
+            userQueryRequest.setSortField("viewNum");
+            userQueryRequest.setSortOrder("desc");
+
+            QueryWrapper<Question> queryWrapper = getQueryWrapper(userQueryRequest);
+            Page<Question> questionPage = this.page(new Page<>(current, size), queryWrapper);
+            // 转换为VO
+            Page<QuestionVO> questionVOPage = new Page<>();
+            questionVOPage.setCurrent(questionPage.getCurrent());
+            questionVOPage.setSize(questionPage.getSize());
+            questionVOPage.setTotal(questionPage.getTotal());
+            List<QuestionVO> questionVOList = getQuestionVO(questionPage.getRecords());
+            questionVOPage.setRecords(questionVOList);
+            return questionVOPage;
+        }
     }
 
     @Override
