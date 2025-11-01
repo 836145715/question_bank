@@ -19,6 +19,12 @@ import java.util.List;
 @Data
 public class QuestionUpdateRequest implements Serializable {
 
+
+    /**
+     * 题库ID数组
+     */
+    private List<Long> questionBankIds;
+
     /**
      * id
      */

@@ -1,12 +1,14 @@
 package com.hu.wink.model.dto;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.List;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
 
 /**
  * 题目添加请求
@@ -16,6 +18,11 @@ import java.util.List;
 @Schema(description = "题目添加请求")
 @Data
 public class QuestionAddRequest implements Serializable {
+
+    /**
+     * 题库ID数组
+     */
+    private List<Long> questionBankIds;
 
     /**
      * 标题

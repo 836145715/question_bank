@@ -1,48 +1,63 @@
 package com.hu.wink.service.impl;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hu.wink.common.ErrorCode;
 import com.hu.wink.exception.BusinessException;
 import com.hu.wink.exception.ThrowUtils;
+import com.hu.wink.mapper.QuestionMapper;
 import com.hu.wink.model.dto.QuestionAddRequest;
 import com.hu.wink.model.dto.QuestionEditRequest;
 import com.hu.wink.model.dto.QuestionQueryRequest;
 import com.hu.wink.model.dto.QuestionUpdateRequest;
 import com.hu.wink.model.entity.Question;
+import com.hu.wink.model.entity.QuestionBank;
+import com.hu.wink.model.entity.QuestionBankQuestion;
 import com.hu.wink.model.entity.User;
 import com.hu.wink.model.vo.QuestionVO;
 import com.hu.wink.model.vo.UserVO;
+import com.hu.wink.service.QuestionBankQuestionService;
+import com.hu.wink.service.QuestionBankService;
 import com.hu.wink.service.QuestionService;
 import com.hu.wink.service.UserService;
-import com.hu.wink.mapper.QuestionMapper;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
-* @author hu
-* @description 针对表【question(题目)】的数据库操作Service实现
-* @createDate 2025-10-24 21:22:40
-*/
+ * @author hu
+ * @description 针对表【question(题目)】的数据库操作Service实现
+ * @createDate 2025-10-24 21:22:40
+ */
 @Service
 public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
-    implements QuestionService{
+        implements QuestionService {
 
     @Resource
     private UserService userService;
+    @Resource
+    private QuestionBankService questionBankService;
+    @Resource
+    private QuestionBankQuestionService questionBankQuestionService;
 
+    @Transactional
     @Override
     public long addQuestion(QuestionAddRequest questionAddRequest, HttpServletRequest request) {
-        if (questionAddRequest == null) {
+        if (questionAddRequest == null || questionAddRequest.getQuestionBankIds() == null
+                || questionAddRequest.getQuestionBankIds().isEmpty()) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
+
         User loginUser = userService.getLoginUser(request);
         ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
 
@@ -62,12 +77,28 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
 
         boolean result = this.save(question);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+
+        List<QuestionBankQuestion> questionBankQuestions = new ArrayList<>();
+        for (Long bankId : questionAddRequest.getQuestionBankIds()) {
+            QuestionBankQuestion questionBankQuestion = new QuestionBankQuestion();
+            questionBankQuestion.setQuestionBankId(bankId);
+            questionBankQuestion.setQuestionId(question.getId());
+            questionBankQuestion.setUserId(loginUser.getId());
+            questionBankQuestions.add(questionBankQuestion);
+        }
+        result = questionBankQuestionService.saveBatch(questionBankQuestions);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "题库题目绑定失败");
+
         return question.getId();
     }
 
+    @Transactional
     @Override
     public boolean updateQuestion(QuestionUpdateRequest questionUpdateRequest, HttpServletRequest request) {
         if (questionUpdateRequest == null || questionUpdateRequest.getId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        if (questionUpdateRequest.getQuestionBankIds() == null || questionUpdateRequest.getQuestionBankIds().isEmpty()) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         User loginUser = userService.getLoginUser(request);
@@ -108,6 +139,24 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
 
         boolean result = this.updateById(updateQuestion);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+
+        // 删除旧的题库题目关联
+        QueryWrapper<QuestionBankQuestion> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("questionId", questionUpdateRequest.getId());
+        questionBankQuestionService.remove(queryWrapper);
+
+        // 绑定新的题库题目关联
+        List<QuestionBankQuestion> questionBankQuestions = new ArrayList<>();
+        for (Long bankId : questionUpdateRequest.getQuestionBankIds()) {
+            QuestionBankQuestion questionBankQuestion = new QuestionBankQuestion();
+            questionBankQuestion.setQuestionBankId(bankId);
+            questionBankQuestion.setQuestionId(questionUpdateRequest.getId());
+            questionBankQuestion.setUserId(loginUser.getId());
+            questionBankQuestions.add(questionBankQuestion);
+        }
+        result = questionBankQuestionService.saveBatch(questionBankQuestions);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "题库题目绑定失败");
+
         return result;
     }
 
@@ -181,7 +230,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         // 如果有题库ID过滤条件，使用联查方法
         if (questionQueryRequest.getQuestionBankId() != null && questionQueryRequest.getQuestionBankId() > 0) {
             // 使用联查方法查询指定题库的题目
-            Page<Question> questionPage = baseMapper.listQuestionByPageWithBank(new Page<>(current, size), questionQueryRequest);
+            Page<Question> questionPage = baseMapper.listQuestionByPageWithBank(new Page<>(current, size),
+                    questionQueryRequest);
             // 转换为VO
             Page<QuestionVO> questionVOPage = new Page<>();
             questionVOPage.setCurrent(questionPage.getCurrent());
@@ -195,7 +245,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
             QuestionQueryRequest userQueryRequest = new QuestionQueryRequest();
             userQueryRequest.setCurrent((int) current);
             userQueryRequest.setPageSize((int) size);
-//            userQueryRequest.setReviewStatus(1); // 只查询已通过的
+            // userQueryRequest.setReviewStatus(1); // 只查询已通过的
             userQueryRequest.setTitle(questionQueryRequest.getTitle());
             userQueryRequest.setTags(questionQueryRequest.getTags());
             userQueryRequest.setSource(questionQueryRequest.getSource());
@@ -327,7 +377,3 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
     }
 
 }
-
-
-
-

@@ -44,9 +44,6 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, Que
     private UserService userService;
 
     @Resource
-    private QuestionService questionService;
-
-    @Resource
     private QuestionBankQuestionService questionBankQuestionService;
 
     @Override
@@ -187,12 +184,12 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, Que
         long size = questionBankQueryRequest.getPageSize();
 
         // 只查询通过审核的题库
-        QuestionBankQueryRequest userQueryRequest = new QuestionBankQueryRequest();
-        userQueryRequest.setCurrent((int) current);
-        userQueryRequest.setPageSize((int) size);
+//        QuestionBankQueryRequest userQueryRequest = new QuestionBankQueryRequest();
+//        userQueryRequest.setCurrent((int) current);
+//        userQueryRequest.setPageSize((int) size);
 //        userQueryRequest.setReviewStatus(1); // 只显示通过审核的
 
-        QueryWrapper<QuestionBank> queryWrapper = getQueryWrapper(userQueryRequest);
+        QueryWrapper<QuestionBank> queryWrapper = getQueryWrapper(questionBankQueryRequest);
         Page<QuestionBank> questionBankPage = this.page(new Page<>(current, size), queryWrapper);
 
         // 转换为VO
