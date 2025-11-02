@@ -15,6 +15,7 @@ import com.hu.wink.annotation.AuthCheck;
 import com.hu.wink.common.BaseResponse;
 import com.hu.wink.common.DeleteRequest;
 import com.hu.wink.common.ErrorCode;
+import com.hu.wink.common.PageInfo;
 import com.hu.wink.common.ResultUtils;
 import com.hu.wink.constant.UserConstant;
 import com.hu.wink.exception.ThrowUtils;
@@ -147,10 +148,10 @@ public class QuestionBankController {
      */
     @PostMapping("/list/page")
     @Operation(summary = "分页获取题库列表", description = "分页获取题库列表（管理员）")
-    public BaseResponse<Page<QuestionBank>> listQuestionBankByPage(
+    public BaseResponse<PageInfo<QuestionBank>> listQuestionBankByPage(
             @Valid @RequestBody QuestionBankQueryRequest questionBankQueryRequest) {
         Page<QuestionBank> questionBankPage = questionBankService.listQuestionBankByPage(questionBankQueryRequest);
-        return ResultUtils.success(questionBankPage);
+        return ResultUtils.success(new PageInfo<>(questionBankPage));
     }
 
     // region 用户功能
@@ -163,11 +164,11 @@ public class QuestionBankController {
      */
     @PostMapping("/list/page/vo")
     @Operation(summary = "分页获取题库列表", description = "分页获取题库列表（用户视图）")
-    public BaseResponse<Page<QuestionBankVO>> listQuestionBankVOByPage(
+    public BaseResponse<PageInfo<QuestionBankVO>> listQuestionBankVOByPage(
             @Valid @RequestBody QuestionBankQueryRequest questionBankQueryRequest) {
         Page<QuestionBankVO> questionBankVOPage = questionBankService
                 .listQuestionBankVOByPage(questionBankQueryRequest);
-        return ResultUtils.success(questionBankVOPage);
+        return ResultUtils.success(new PageInfo<>(questionBankVOPage));
     }
 
     /**
@@ -196,8 +197,8 @@ public class QuestionBankController {
     @Operation(summary = "获取题库题目列表", description = "获取指定题库下的题目列表（已审核）")
     public BaseResponse<List<QuestionVO>> getQuestionsByQuestionBankId(
             @RequestParam @Min(value = 1, message = "题库ID必须大于0") long questionBankId,
-            @RequestParam(defaultValue = "1") long current,
-            @RequestParam(defaultValue = "10") long pageSize) {
+            @RequestParam(defaultValue = "1") int current,
+            @RequestParam(defaultValue = "10") int pageSize) {
 
         // 检查题库是否存在且已通过审核
         QuestionBank questionBank = questionBankService.getById(questionBankId);

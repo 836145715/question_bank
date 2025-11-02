@@ -1,10 +1,26 @@
 package com.hu.wink.controller;
 
+import static com.hu.wink.service.impl.UserServiceImpl.*;
+
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.util.DigestUtils;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hu.wink.annotation.AuthCheck;
 import com.hu.wink.common.BaseResponse;
 import com.hu.wink.common.DeleteRequest;
 import com.hu.wink.common.ErrorCode;
+import com.hu.wink.common.PageInfo;
 import com.hu.wink.common.ResultUtils;
 import com.hu.wink.config.WxOpenConfig;
 import com.hu.wink.constant.UserConstant;
@@ -21,38 +37,22 @@ import com.hu.wink.model.vo.LoginUserVO;
 import com.hu.wink.model.vo.UserVO;
 import com.hu.wink.service.UserService;
 
-import java.util.List;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import me.chanjar.weixin.common.bean.oauth2.WxOAuth2AccessToken;
-import org.springframework.validation.annotation.Validated;
 import me.chanjar.weixin.mp.api.WxMpService;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.util.DigestUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import static com.hu.wink.service.impl.UserServiceImpl.SALT;
-
-import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.Operation;
 
 /**
  * 用户接口
  *
-
-
+ * 
+ * 
  */
 @RestController
 @RequestMapping("/user")
@@ -93,7 +93,8 @@ public class UserController {
      */
     @PostMapping("/login")
     @Operation(summary = "用户登录", description = "用户使用账号密码登录系统")
-    public BaseResponse<LoginUserVO> userLogin(@Valid @RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
+    public BaseResponse<LoginUserVO> userLogin(@Valid @RequestBody UserLoginRequest userLoginRequest,
+            HttpServletRequest request) {
         String userAccount = userLoginRequest.getUserAccount();
         String userPassword = userLoginRequest.getUserPassword();
         LoginUserVO loginUserVO = userService.userLogin(userAccount, userPassword, request);
@@ -189,7 +190,8 @@ public class UserController {
     @PostMapping("/delete")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @Operation(summary = "删除用户", description = "管理员删除用户（逻辑删除）")
-    public BaseResponse<Boolean> deleteUser(@Valid @RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
+    public BaseResponse<Boolean> deleteUser(@Valid @RequestBody DeleteRequest deleteRequest,
+            HttpServletRequest request) {
         boolean b = userService.removeById(deleteRequest.getId());
         return ResultUtils.success(b);
     }
@@ -223,7 +225,8 @@ public class UserController {
     @GetMapping("/get")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @Operation(summary = "获取用户详情", description = "根据ID获取用户详细信息（管理员）")
-    public BaseResponse<User> getUserById(@RequestParam @Min(value = 1, message = "ID必须大于0") long id, HttpServletRequest request) {
+    public BaseResponse<User> getUserById(@RequestParam @Min(value = 1, message = "ID必须大于0") long id,
+            HttpServletRequest request) {
         User user = userService.getById(id);
         ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR);
         return ResultUtils.success(user);
@@ -238,7 +241,8 @@ public class UserController {
      */
     @GetMapping("/get/vo")
     @Operation(summary = "获取用户详情", description = "根据ID获取用户详细信息（脱敏视图）")
-    public BaseResponse<UserVO> getUserVOById(@RequestParam @Min(value = 1, message = "ID必须大于0") long id, HttpServletRequest request) {
+    public BaseResponse<UserVO> getUserVOById(@RequestParam @Min(value = 1, message = "ID必须大于0") long id,
+            HttpServletRequest request) {
         BaseResponse<User> response = getUserById(id, request);
         User user = response.getData();
         return ResultUtils.success(userService.getUserVO(user));
@@ -254,13 +258,13 @@ public class UserController {
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @Operation(summary = "分页获取用户列表", description = "分页获取用户列表（管理员）")
-    public BaseResponse<Page<User>> listUserByPage(@RequestBody UserQueryRequest userQueryRequest,
+    public BaseResponse<PageInfo<User>> listUserByPage(@RequestBody UserQueryRequest userQueryRequest,
             HttpServletRequest request) {
         long current = userQueryRequest.getCurrent();
         long size = userQueryRequest.getPageSize();
         Page<User> userPage = userService.page(new Page<>(current, size),
                 userService.getQueryWrapper(userQueryRequest));
-        return ResultUtils.success(userPage);
+        return ResultUtils.success(new PageInfo<>(userPage));
     }
 
     /**
@@ -272,7 +276,7 @@ public class UserController {
      */
     @PostMapping("/list/page/vo")
     @Operation(summary = "分页获取用户列表", description = "分页获取用户列表（脱敏视图）")
-    public BaseResponse<Page<UserVO>> listUserVOByPage(@Valid @RequestBody UserQueryRequest userQueryRequest,
+    public BaseResponse<PageInfo<UserVO>> listUserVOByPage(@Valid @RequestBody UserQueryRequest userQueryRequest,
             HttpServletRequest request) {
         long current = userQueryRequest.getCurrent();
         long size = userQueryRequest.getPageSize();
@@ -281,7 +285,7 @@ public class UserController {
         Page<UserVO> userVOPage = new Page<>(current, size, userPage.getTotal());
         List<UserVO> userVO = userService.getUserVO(userPage.getRecords());
         userVOPage.setRecords(userVO);
-        return ResultUtils.success(userVOPage);
+        return ResultUtils.success(new PageInfo<>(userVOPage));
     }
 
     // endregion
