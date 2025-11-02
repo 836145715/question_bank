@@ -1,5 +1,6 @@
 package com.hu.wink.controller;
 
+import com.hu.wink.model.vo.QuestionBankVO;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,6 +30,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
 
 /**
  * 题目接口
@@ -167,6 +170,21 @@ public class QuestionController {
     public BaseResponse<QuestionVO> getQuestionVOById(@RequestParam @Min(value = 1, message = "ID必须大于0") long id) {
         QuestionVO questionVO = questionService.getQuestionVOById(id);
         return ResultUtils.success(questionVO);
+    }
+
+
+    /**
+     * 根据题目获取所属题库列表
+     *
+     * @param questionId
+     * @return
+     */
+    @GetMapping("/get/question/banks")
+     @Operation(summary = "根据题目获取所属题库列表", description = "根据题目ID获取所属题库列表")
+    public BaseResponse<List<QuestionBankVO>> getQuestionBanksByQuestionId(
+            @RequestParam @Min(value = 1, message = "题目ID必须大于0") long questionId) {
+        List<QuestionBankVO> questionBankIds = questionService.getQuestionBanksByQuestionId(questionId);
+        return ResultUtils.success(questionBankIds);
     }
 
 }

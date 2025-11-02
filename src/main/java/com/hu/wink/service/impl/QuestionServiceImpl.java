@@ -5,7 +5,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.hu.wink.model.entity.QuestionBank;
+import com.hu.wink.model.vo.QuestionBankVO;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +24,6 @@ import com.hu.wink.model.dto.QuestionEditRequest;
 import com.hu.wink.model.dto.QuestionQueryRequest;
 import com.hu.wink.model.dto.QuestionUpdateRequest;
 import com.hu.wink.model.entity.Question;
-import com.hu.wink.model.entity.QuestionBank;
 import com.hu.wink.model.entity.QuestionBankQuestion;
 import com.hu.wink.model.entity.User;
 import com.hu.wink.model.vo.QuestionVO;
@@ -375,5 +377,22 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         }
         return queryWrapper;
     }
+
+    @Override
+    public List<QuestionBankVO> getQuestionBanksByQuestionId(long questionId) {
+        // 从中间表查询题库ID
+        QueryWrapper<QuestionBankQuestion> questionBankQuestionQueryWrapper = new QueryWrapper<>();
+        questionBankQuestionQueryWrapper.eq("questionId", questionId);
+        List<QuestionBankQuestion> questionBankQuestionList = questionBankQuestionService.list(questionBankQuestionQueryWrapper);
+        List<Long> ids = questionBankQuestionList.stream().map(QuestionBankQuestion::getQuestionBankId).toList();
+        // 从题库表查询题库信息
+        List<QuestionBank> questionBankList = questionBankService.listByIds(ids);
+        return questionBankList.stream().map(questionBank -> {
+            QuestionBankVO questionBankVO = new QuestionBankVO();
+            BeanUtils.copyProperties(questionBank, questionBankVO);
+            return questionBankVO;
+        }).collect(Collectors.toList());
+    }
+
 
 }

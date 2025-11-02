@@ -8,9 +8,12 @@ import com.hu.wink.model.dto.QuestionEditRequest;
 import com.hu.wink.model.dto.QuestionQueryRequest;
 import com.hu.wink.model.dto.QuestionUpdateRequest;
 import com.hu.wink.model.entity.Question;
+import com.hu.wink.model.vo.QuestionBankVO;
 import com.hu.wink.model.vo.QuestionVO;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.Min;
+
 import java.util.List;
 
 /**
@@ -112,4 +115,6 @@ public interface QuestionService extends IService<Question> {
      */
     QueryWrapper<Question> getQueryWrapper(QuestionQueryRequest questionQueryRequest);
 
+
+    List<QuestionBankVO> getQuestionBanksByQuestionId(@Min(value = 1, message = "题目ID必须大于0") long questionId);
 }
