@@ -385,6 +385,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         questionBankQuestionQueryWrapper.eq("questionId", questionId);
         List<QuestionBankQuestion> questionBankQuestionList = questionBankQuestionService.list(questionBankQuestionQueryWrapper);
         List<Long> ids = questionBankQuestionList.stream().map(QuestionBankQuestion::getQuestionBankId).toList();
+        if(ids.isEmpty()){
+            return new ArrayList<>();
+        }
         // 从题库表查询题库信息
         List<QuestionBank> questionBankList = questionBankService.listByIds(ids);
         return questionBankList.stream().map(questionBank -> {
