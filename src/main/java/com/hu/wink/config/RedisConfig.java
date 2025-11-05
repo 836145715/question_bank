@@ -30,6 +30,7 @@ public class RedisConfig {
                 ObjectMapper.DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY
         );
+
         return new GenericJackson2JsonRedisSerializer(mapper);
     }
 
