@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hu.wink.common.ErrorCode;
 import com.hu.wink.constant.CommonConstant;
+import com.hu.wink.constant.RedisConstant;
 import com.hu.wink.exception.BusinessException;
 import com.hu.wink.mapper.UserMapper;
 import com.hu.wink.model.dto.user.UserQueryRequest;
@@ -20,12 +21,19 @@ import com.hu.wink.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.api.RBitSet;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import jakarta.servlet.http.HttpServletRequest;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,6 +45,9 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+
+    @Autowired
+    private RedissonClient redissonClient;
 
     /**
      * 盐值，混淆密码
@@ -249,5 +260,42 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
                 sortField);
         return queryWrapper;
+    }
+
+    @Override
+    public boolean signIn(Long userId) {
+        LocalDate today = LocalDate.now();
+        //获取签到key
+        String key = RedisConstant.getUserSignInKey(today.getYear(), userId);
+        //获取bitset 里面存储的 365天签到记录
+        RBitSet bitSet = redissonClient.getBitSet(key);
+        //获取今天是这一年的第几天
+        int dayOfYear = today.getDayOfYear();
+        if(bitSet.get(dayOfYear)){
+            //如果已经签到了
+            return true;
+        }
+        //签到
+        bitSet.set(dayOfYear);
+        return false;
+    }
+
+    @Override
+    public List<Integer> signInRecord(Long userId) {
+        LocalDate today = LocalDate.now();
+        //获取签到key
+        String key = RedisConstant.getUserSignInKey(today.getYear(), userId);
+        //获取bitset 里面存储的 365天签到记录
+        RBitSet bitSet = redissonClient.getBitSet(key);
+        BitSet mBitSet = bitSet.asBitSet();
+
+        List<Integer> dayList = new ArrayList<>();
+
+        int index = mBitSet.nextSetBit(0);
+        while (index != -1) {
+            dayList.add(index);
+            index = mBitSet.nextSetBit(index + 1);
+        }
+        return dayList;
     }
 }

@@ -50,9 +50,6 @@ import me.chanjar.weixin.mp.api.WxMpService;
 
 /**
  * 用户接口
- *
- * 
- * 
  */
 @RestController
 @RequestMapping("/user")
@@ -94,7 +91,7 @@ public class UserController {
     @PostMapping("/login")
     @Operation(summary = "用户登录", description = "用户使用账号密码登录系统")
     public BaseResponse<LoginUserVO> userLogin(@Valid @RequestBody UserLoginRequest userLoginRequest,
-            HttpServletRequest request) {
+                                               HttpServletRequest request) {
         String userAccount = userLoginRequest.getUserAccount();
         String userPassword = userLoginRequest.getUserPassword();
         LoginUserVO loginUserVO = userService.userLogin(userAccount, userPassword, request);
@@ -107,7 +104,7 @@ public class UserController {
     @GetMapping("/login/wx_open")
     @Operation(summary = "微信登录", description = "用户使用微信开放平台授权登录")
     public BaseResponse<LoginUserVO> userLoginByWxOpen(HttpServletRequest request, HttpServletResponse response,
-            @RequestParam("code") String code) {
+                                                       @RequestParam("code") String code) {
         WxOAuth2AccessToken accessToken;
         try {
             WxMpService wxService = wxOpenConfig.getWxMpService();
@@ -191,7 +188,7 @@ public class UserController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @Operation(summary = "删除用户", description = "管理员删除用户（逻辑删除）")
     public BaseResponse<Boolean> deleteUser(@Valid @RequestBody DeleteRequest deleteRequest,
-            HttpServletRequest request) {
+                                            HttpServletRequest request) {
         boolean b = userService.removeById(deleteRequest.getId());
         return ResultUtils.success(b);
     }
@@ -207,7 +204,7 @@ public class UserController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @Operation(summary = "更新用户", description = "管理员更新用户信息")
     public BaseResponse<Boolean> updateUser(@Valid @RequestBody UserUpdateRequest userUpdateRequest,
-            HttpServletRequest request) {
+                                            HttpServletRequest request) {
         User user = new User();
         BeanUtils.copyProperties(userUpdateRequest, user);
         boolean result = userService.updateById(user);
@@ -226,7 +223,7 @@ public class UserController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @Operation(summary = "获取用户详情", description = "根据ID获取用户详细信息（管理员）")
     public BaseResponse<User> getUserById(@RequestParam @Min(value = 1, message = "ID必须大于0") long id,
-            HttpServletRequest request) {
+                                          HttpServletRequest request) {
         User user = userService.getById(id);
         ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR);
         return ResultUtils.success(user);
@@ -242,7 +239,7 @@ public class UserController {
     @GetMapping("/get/vo")
     @Operation(summary = "获取用户详情", description = "根据ID获取用户详细信息（脱敏视图）")
     public BaseResponse<UserVO> getUserVOById(@RequestParam @Min(value = 1, message = "ID必须大于0") long id,
-            HttpServletRequest request) {
+                                              HttpServletRequest request) {
         BaseResponse<User> response = getUserById(id, request);
         User user = response.getData();
         return ResultUtils.success(userService.getUserVO(user));
@@ -259,7 +256,7 @@ public class UserController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @Operation(summary = "分页获取用户列表", description = "分页获取用户列表（管理员）")
     public BaseResponse<PageInfo<User>> listUserByPage(@RequestBody UserQueryRequest userQueryRequest,
-            HttpServletRequest request) {
+                                                       HttpServletRequest request) {
         long current = userQueryRequest.getCurrent();
         long size = userQueryRequest.getPageSize();
         Page<User> userPage = userService.page(new Page<>(current, size),
@@ -277,7 +274,7 @@ public class UserController {
     @PostMapping("/list/page/vo")
     @Operation(summary = "分页获取用户列表", description = "分页获取用户列表（脱敏视图）")
     public BaseResponse<PageInfo<UserVO>> listUserVOByPage(@Valid @RequestBody UserQueryRequest userQueryRequest,
-            HttpServletRequest request) {
+                                                           HttpServletRequest request) {
         long current = userQueryRequest.getCurrent();
         long size = userQueryRequest.getPageSize();
         Page<User> userPage = userService.page(new Page<>(current, size),
@@ -300,7 +297,7 @@ public class UserController {
     @PostMapping("/update/my")
     @Operation(summary = "更新个人信息", description = "当前登录用户更新自己的信息")
     public BaseResponse<Boolean> updateMyUser(@Valid @RequestBody UserUpdateMyRequest userUpdateMyRequest,
-            HttpServletRequest request) {
+                                              HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
         User user = new User();
         BeanUtils.copyProperties(userUpdateMyRequest, user);
@@ -309,4 +306,22 @@ public class UserController {
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
     }
+
+
+    @PostMapping("/signIn")
+    @Operation(summary = "用户签到")
+    public BaseResponse<Boolean> signIn(HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        boolean result = userService.signIn(loginUser.getId());
+        return ResultUtils.success(result);
+    }
+
+    @GetMapping("/signIn/record")
+    @Operation(summary = "获取用户签到记录")
+    public BaseResponse<List<Integer>> getSignInRecord(HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        List<Integer> signInRecords = userService.signInRecord(loginUser.getId());
+        return ResultUtils.success(signInRecords);
+    }
+
 }
