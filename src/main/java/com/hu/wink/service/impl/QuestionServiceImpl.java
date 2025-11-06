@@ -5,6 +5,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.hu.wink.model.entity.QuestionBank;
 import com.hu.wink.model.vo.QuestionBankVO;
 import org.apache.commons.lang3.StringUtils;
@@ -220,7 +223,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
     public Page<Question> listQuestionByPage(QuestionQueryRequest questionQueryRequest) {
         long current = questionQueryRequest.getCurrent();
         long size = questionQueryRequest.getPageSize();
-        QueryWrapper<Question> queryWrapper = getQueryWrapper(questionQueryRequest);
+        Wrapper<Question> queryWrapper = getQueryWrapper(questionQueryRequest);
         return this.page(new Page<>(current, size), queryWrapper);
     }
 
@@ -228,50 +231,16 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
     public Page<QuestionVO> listQuestionVOByPage(QuestionQueryRequest questionQueryRequest) {
         long current = questionQueryRequest.getCurrent();
         long size = questionQueryRequest.getPageSize();
-
-        // 如果有题库ID过滤条件，使用联查方法
-        if (questionQueryRequest.getQuestionBankId() != null && questionQueryRequest.getQuestionBankId() > 0) {
-            // 使用联查方法查询指定题库的题目
-            Page<Question> questionPage = baseMapper.listQuestionByPageWithBank(new Page<>(current, size),
-                    questionQueryRequest);
-            // 转换为VO
-            Page<QuestionVO> questionVOPage = new Page<>();
-            questionVOPage.setCurrent(questionPage.getCurrent());
-            questionVOPage.setSize(questionPage.getSize());
-            questionVOPage.setTotal(questionPage.getTotal());
-            List<QuestionVO> questionVOList = getQuestionVO(questionPage.getRecords());
-            questionVOPage.setRecords(questionVOList);
-            return questionVOPage;
-        } else {
-            // 原有的查询逻辑（不涉及题库过滤）
-            QuestionQueryRequest userQueryRequest = new QuestionQueryRequest();
-            userQueryRequest.setCurrent((int) current);
-            userQueryRequest.setPageSize((int) size);
-            // userQueryRequest.setReviewStatus(1); // 只查询已通过的
-            userQueryRequest.setTitle(questionQueryRequest.getTitle());
-            userQueryRequest.setTags(questionQueryRequest.getTags());
-            userQueryRequest.setSource(questionQueryRequest.getSource());
-            userQueryRequest.setNeedVip(questionQueryRequest.getNeedVip());
-            userQueryRequest.setMinViewNum(questionQueryRequest.getMinViewNum());
-            userQueryRequest.setMaxViewNum(questionQueryRequest.getMaxViewNum());
-            userQueryRequest.setMinThumbNum(questionQueryRequest.getMinThumbNum());
-            userQueryRequest.setMaxThumbNum(questionQueryRequest.getMaxThumbNum());
-            userQueryRequest.setMinFavourNum(questionQueryRequest.getMinFavourNum());
-            userQueryRequest.setMaxFavourNum(questionQueryRequest.getMaxFavourNum());
-            userQueryRequest.setSortField("viewNum");
-            userQueryRequest.setSortOrder("desc");
-
-            QueryWrapper<Question> queryWrapper = getQueryWrapper(userQueryRequest);
-            Page<Question> questionPage = this.page(new Page<>(current, size), queryWrapper);
-            // 转换为VO
-            Page<QuestionVO> questionVOPage = new Page<>();
-            questionVOPage.setCurrent(questionPage.getCurrent());
-            questionVOPage.setSize(questionPage.getSize());
-            questionVOPage.setTotal(questionPage.getTotal());
-            List<QuestionVO> questionVOList = getQuestionVO(questionPage.getRecords());
-            questionVOPage.setRecords(questionVOList);
-            return questionVOPage;
-        }
+        Wrapper<Question> queryWrapper = getQueryWrapper(questionQueryRequest);
+        Page<Question> questionPage = this.page(new Page<>(current, size), queryWrapper);
+        // 转换为VO
+        Page<QuestionVO> questionVOPage = new Page<>();
+        questionVOPage.setCurrent(questionPage.getCurrent());
+        questionVOPage.setSize(questionPage.getSize());
+        questionVOPage.setTotal(questionPage.getTotal());
+        List<QuestionVO> questionVOList = getQuestionVO(questionPage.getRecords());
+        questionVOPage.setRecords(questionVOList);
+        return questionVOPage;
     }
 
     @Override
@@ -327,8 +296,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
     }
 
     @Override
-    public QueryWrapper<Question> getQueryWrapper(QuestionQueryRequest questionQueryRequest) {
-        QueryWrapper<Question> queryWrapper = new QueryWrapper<>();
+    public Wrapper<Question> getQueryWrapper(QuestionQueryRequest questionQueryRequest) {
+        LambdaQueryWrapper<Question> queryWrapper =new LambdaQueryWrapper<>();
         if (questionQueryRequest == null) {
             return queryWrapper;
         }
@@ -352,28 +321,34 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         String sortOrder = questionQueryRequest.getSortOrder();
 
         // 拼接查询条件
-        queryWrapper.eq(id != null && id > 0, "id", id);
-        queryWrapper.like(StringUtils.isNotBlank(title), "title", title);
-        queryWrapper.like(StringUtils.isNotBlank(content), "content", content);
-        queryWrapper.like(StringUtils.isNotBlank(tags), "tags", tags);
-        queryWrapper.eq(userId != null && userId > 0, "userId", userId);
-        queryWrapper.eq(reviewStatus != null, "reviewStatus", reviewStatus);
-        queryWrapper.eq(reviewerId != null && reviewerId > 0, "reviewerId", reviewerId);
-        queryWrapper.eq(priority != null, "priority", priority);
-        queryWrapper.eq(StringUtils.isNotBlank(source), "source", source);
-        queryWrapper.eq(needVip != null, "needVip", needVip);
-        queryWrapper.ge(minViewNum != null && minViewNum >= 0, "viewNum", minViewNum);
-        queryWrapper.le(maxViewNum != null && maxViewNum >= 0, "viewNum", maxViewNum);
-        queryWrapper.ge(minThumbNum != null && minThumbNum >= 0, "thumbNum", minThumbNum);
-        queryWrapper.le(maxThumbNum != null && maxThumbNum >= 0, "thumbNum", maxThumbNum);
-        queryWrapper.ge(minFavourNum != null && minFavourNum >= 0, "favourNum", minFavourNum);
-        queryWrapper.le(maxFavourNum != null && maxFavourNum >= 0, "favourNum", maxFavourNum);
+        queryWrapper.eq(id != null && id > 0, Question::getId, id);
+        queryWrapper.like(StringUtils.isNotBlank(title), Question::getTitle, title);
+        queryWrapper.like(StringUtils.isNotBlank(content), Question::getContent, content);
+        queryWrapper.like(StringUtils.isNotBlank(tags), Question::getTags, tags);
+        queryWrapper.eq(userId != null && userId > 0, Question::getUserId, userId);
+        queryWrapper.eq(reviewStatus != null, Question::getReviewStatus, reviewStatus);
+        queryWrapper.eq(reviewerId != null && reviewerId > 0, Question::getReviewerId, reviewerId);
+        queryWrapper.eq(priority != null, Question::getPriority, priority);
+        queryWrapper.eq(StringUtils.isNotBlank(source), Question::getSource, source);
+        queryWrapper.eq(needVip != null, Question::getNeedVip, needVip);
+        queryWrapper.ge(minViewNum != null && minViewNum >= 0, Question::getViewNum, minViewNum);
+        queryWrapper.le(maxViewNum != null && maxViewNum >= 0, Question::getViewNum, maxViewNum);
+        queryWrapper.ge(minThumbNum != null && minThumbNum >= 0, Question::getThumbNum, minThumbNum);
+        queryWrapper.le(maxThumbNum != null && maxThumbNum >= 0, Question::getThumbNum, maxThumbNum);
+        queryWrapper.ge(minFavourNum != null && minFavourNum >= 0, Question::getFavourNum, minFavourNum);
+        queryWrapper.le(maxFavourNum != null && maxFavourNum >= 0, Question::getFavourNum, maxFavourNum);
+
+        List<Long> questionIdList = null;
+        if(questionQueryRequest.getQuestionBankId() != null && questionQueryRequest.getQuestionBankId() > 0){
+            questionIdList = questionBankQuestionService.getQuestionIdList(questionQueryRequest.getQuestionBankId());
+            queryWrapper.in(questionIdList != null && !questionIdList.isEmpty(), Question::getId, questionIdList);
+        }
         // 排序
         if (StringUtils.isNotBlank(sortField)) {
             boolean isAsc = "ascend".equalsIgnoreCase(sortOrder);
-            queryWrapper.orderBy(true, isAsc, sortField);
+            queryWrapper.orderBy(true, isAsc, Question::getCreateTime);
         } else {
-            queryWrapper.orderByDesc("createTime");
+            queryWrapper.orderByDesc(Question::getCreateTime);
         }
         return queryWrapper;
     }

@@ -1,5 +1,6 @@
 package com.hu.wink.service;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -113,7 +114,7 @@ public interface QuestionService extends IService<Question> {
      * @param questionQueryRequest 查询请求
      * @return 查询包装器
      */
-    QueryWrapper<Question> getQueryWrapper(QuestionQueryRequest questionQueryRequest);
+    Wrapper<Question> getQueryWrapper(QuestionQueryRequest questionQueryRequest);
 
 
     List<QuestionBankVO> getQuestionBanksByQuestionId(@Min(value = 1, message = "题目ID必须大于0") long questionId);
